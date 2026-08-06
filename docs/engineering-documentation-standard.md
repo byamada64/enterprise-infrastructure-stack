@@ -13,13 +13,11 @@ This standard is designed for two audiences:
 
 Repository organization, templates, and metadata may evolve over time. The principles defined in this standard remain constant.
 
----
-
-# Non-Negotiable Principles
+## Non-Negotiable Principles
 
 These principles apply to every engineering document regardless of platform, technology, capability, or document type.
 
-## 1. Evidence Over Assertion
+### 1. Evidence Over Assertion
 
 Engineering documentation must demonstrate evidence rather than make unsupported claims.
 
@@ -36,9 +34,7 @@ Examples include:
 
 Validation is evidence—not opinion.
 
----
-
-## 2. Decisions Are First-Class
+### 2. Decisions Are First-Class
 
 Engineering value is demonstrated through decisions, not commands.
 
@@ -48,11 +44,9 @@ Whenever meaningful alternatives or tradeoffs exist, document:
 - Alternatives considered
 - Tradeoffs accepted
 
-Engineering decisions often provide more long-term value than implementation steps.
+The reasoning behind a decision is often more valuable than the implementation itself.
 
----
-
-## 3. Failure Is Valuable Evidence
+### 3. Failure Is Valuable Evidence
 
 Troubleshooting is not an appendix or an embarrassment section.
 
@@ -60,23 +54,19 @@ Document:
 
 - Problem
 - Investigation
-- Root Cause
+- Root cause
 - Resolution
 - Validation
 
 Failure demonstrates investigative method, operational maturity, and engineering discipline.
 
-Successful engineers are distinguished not by avoiding problems, but by how they investigate and resolve them.
-
----
-
-## 4. Write for the Next Operator
+### 4. Write for the Next Operator
 
 Documentation is written for the engineer who inherits the system.
 
-Avoid diary-style language unless it provides operational context.
+Avoid diary-style language unless it adds meaningful operational context.
 
-Prefer:
+Prefer writing:
 
 > Operators should validate...
 
@@ -86,15 +76,11 @@ instead of:
 
 Future-you is simply another operator.
 
-Documentation should remain useful long after the original implementation is complete.
-
----
-
-## 5. Lifecycle Matters
+### 5. Lifecycle Matters
 
 Every engineering artifact exists within a lifecycle.
 
-Current state should always be documented explicitly.
+Document the current state explicitly.
 
 Supported lifecycle states include:
 
@@ -106,29 +92,23 @@ Supported lifecycle states include:
 - Deprecated
 - Archived
 
-Documentation should accurately represent reality rather than aspiration.
+Documentation should accurately represent the current state rather than an aspirational one.
 
----
-
-## 6. Depth Follows Complexity
+### 6. Depth Follows Complexity
 
 Documentation depth should be proportional to engineering complexity.
 
 Simple policy deployments should remain concise.
 
-Complex platforms deserve deeper architectural discussion.
+Complex platforms deserve deeper design discussion.
 
-Templates should never introduce unnecessary filler.
+Templates should never introduce unnecessary filler simply to satisfy formatting.
 
-Engineering judgment determines documentation depth—not template compliance.
-
----
-
-## 7. Metadata Is Structure
+### 7. Metadata Is Structure
 
 Metadata is part of the engineering design—not decoration.
 
-Every document should eventually expose structured metadata such as:
+Every engineering document should eventually expose structured metadata such as:
 
 - Platform
 - Product
@@ -136,18 +116,11 @@ Every document should eventually expose structured metadata such as:
 - Document Type
 - Status
 - Validation Date
-- Related Documentation
+- Relationships
 
-Metadata enables:
+Metadata enables both human navigation and future machine retrieval.
 
-- Human navigation
-- Repository consistency
-- Future machine retrieval
-- Knowledge relationships
-
----
-
-## 8. Vocabulary Must Be Governed
+### 8. Vocabulary Must Be Governed
 
 Engineering terminology should remain consistent across the repository.
 
@@ -159,18 +132,9 @@ Canonical naming should be established early for:
 - Document Types
 - Status Values
 
-Consistency improves:
+Consistency improves readability, searchability, long-term maintainability, and future AI retrieval accuracy.
 
-- Readability
-- Searchability
-- Long-term maintainability
-- Future MCP retrieval quality
-
-Standards established early eliminate large-scale refactoring later.
-
----
-
-## 9. One Source of Truth
+### 9. One Source of Truth
 
 Knowledge should exist once.
 
@@ -182,80 +146,86 @@ When documents relate to one another:
 
 Avoid duplicating explanations across multiple documents.
 
-The repository should evolve as a connected engineering knowledge graph rather than isolated documentation.
+The repository should evolve as a connected knowledge graph rather than isolated documentation.
 
----
+## Engineering Outcomes
 
-# Engineering Outcomes
+The purpose of this repository is not simply to demonstrate technologies.
 
-Following this standard should consistently produce documentation that demonstrates:
+It is to demonstrate engineering thinking.
+
+Every document should communicate:
 
 - Technical reasoning
 - Decision making
-- Evidence-based validation
-- Investigative troubleshooting
+- Validation methodology
+- Troubleshooting process
 - Operational ownership
 - Continuous improvement
-- Knowledge reuse
 
-The objective is to demonstrate engineering thinking—not simply technology implementation.
+A reader should understand **how the engineer thinks**, not simply **what was built**.
 
----
+Successful engineering documentation answers questions such as:
 
-# Repository Standards
+- Why was this approach selected?
+- What alternatives were considered?
+- How was success validated?
+- What failed during implementation?
+- What was learned?
+- What should the next engineer know?
 
-Every engineering document should, where applicable:
+## Repository Standards
 
-- Explain the purpose
-- Document engineering decisions
-- Describe the implementation
-- Demonstrate validation with evidence
-- Capture troubleshooting and root cause analysis
-- Record lessons learned
-- Identify future improvements
-- Reference related documentation
+Documentation should remain:
 
-Documentation depth should always remain proportional to engineering complexity.
+- Consistent
+- Evidence-based
+- Cross-referenced
+- Vendor-neutral where practical
+- Easy to maintain
+- Easy to search
+- Easy to extend
 
----
+Consistency is achieved through engineering discipline—not template compliance.
 
-# Future MCP Architecture
+Templates may evolve over time.
+
+These principles should not.
+
+## Future MCP Architecture
 
 This documentation standard has been intentionally designed to support future AI-assisted engineering knowledge retrieval.
 
-Engineering documentation should remain:
+Engineering documents should remain:
 
 - Human-readable
 - Machine-readable
 - Metadata-driven
 - Cross-referenced
 - Consistently structured
-- Technology agnostic where practical
 
-Metadata provides discoverability.
+Knowledge should become increasingly connected over time rather than duplicated.
 
-Engineering reasoning provides understanding.
+Future retrieval systems should be able to answer questions such as:
 
-Both are required to build a long-term reusable engineering knowledge platform.
+- Show every Azure networking deployment.
+- Show every document related to Key Vault.
+- Show all troubleshooting involving IAM permissions.
+- Show every implementation that references Terraform.
+- Show every lesson learned involving Azure networking.
 
-Future AI systems should be able to retrieve engineering knowledge without requiring documentation to be rewritten.
+The objective is to build an engineering knowledge platform where information can be retrieved, related, and reused without rewriting documentation for AI systems.
 
----
-
-# Engineering Philosophy
-
-This repository is not intended to demonstrate everything the engineer knows.
-
-It is intended to demonstrate **how the engineer thinks.**
-
-Every document should communicate:
-
-- Why decisions were made
-- How implementations were validated
-- How failures were investigated
-- How systems are operated
-- How knowledge evolves over time
+## Engineering Philosophy
 
 Technology changes.
 
-Engineering thinking endures.
+Engineering principles endure.
+
+A repository should demonstrate more than technical capability.
+
+It should demonstrate structured thinking, sound judgment, investigative discipline, operational ownership, and continuous improvement.
+
+The long-term goal is not simply to build infrastructure.
+
+It is to build a reusable engineering knowledge base that reflects how an experienced engineer designs, validates, troubleshoots, documents, and continuously improves complex systems.
