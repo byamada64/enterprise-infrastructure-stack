@@ -1,5 +1,9 @@
 # Engineering Documentation Standard (EDS)
 
+**Version:** 1.0  
+**Status:** Active  
+**Last Updated:** 2026-08-06
+
 ## Purpose
 
 The Engineering Documentation Standard (EDS) establishes the principles used to document engineering work throughout this repository.
