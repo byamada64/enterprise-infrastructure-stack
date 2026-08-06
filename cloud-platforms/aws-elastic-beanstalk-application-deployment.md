@@ -1,127 +1,204 @@
-# 🚀 AWS Elastic Beanstalk Deployment
+---
+doc_type: build-record
+capability: cloud-platforms
+platform: aws
+product: elastic-beanstalk
+status: validated
+environment: lab
+last_validated: <YYYY-MM-DD>
+tags:
+  - aws
+  - elastic-beanstalk
+  - docker
+  - nginx
+  - paas
+related: []
+---
 
-## Build Summary
+# AWS Elastic Beanstalk — Docker Application Deployment
 
-Provisioned an AWS Elastic Beanstalk environment to evaluate managed application deployment, platform abstraction, and automated scaling behavior in a production-aligned scenario.
+## Summary
 
-This build focuses on PaaS tradeoffs versus infrastructure-based deployments, incorporating IAM roles, environment configuration, scaling policies, and application deployment workflows to validate operational simplicity, service exposure, and governed lab environment.
+Provisioned an AWS Elastic Beanstalk environment to evaluate managed application deployment, platform abstraction, IAM role separation, and application lifecycle behavior.
 
+A Docker-based nginx application was deployed to a single-instance web environment in `us-east-1`. The build also exposed an important platform requirement when an initial static HTML deployment failed because the selected Docker runtime required a valid container deployment artifact.
 
-## 🏗️ Environment Build Choices
+## Design Decisions
 
-### Project Details
+- **Docker platform** — selected to evaluate container-based application deployment through a managed PaaS rather than a framework-specific runtime.
+- **Single-instance environment** — sufficient for validating deployment behavior without introducing load-balancing or auto-scaling complexity.
+- **t3.micro instance** — appropriate for functional lab validation rather than performance or capacity testing.
+- **Public subnet and public IP** — used to provide direct access to the application during validation.
+- **Enhanced health reporting** — enabled to provide operational visibility into environment and instance health.
+- **Managed platform updates** — enabled for minor and patch updates.
+- **CloudWatch log streaming and X-Ray** — not enabled for this build and retained as future observability improvements.
 
-- **Platform:** AWS Elastic Beanstalk
-- **Application Name:** nginx-demo-app
-- **Environment Name:** nginx-demo-env
-- **Environment Tier:** Web Server Environment
-- **Region:** us-east-1
-- **Domain:** Auto-generated Elastic Beanstalk URL
+Auto-scaling behavior was not exercised because the environment was intentionally deployed as a single instance.
 
-### Platform Configuration
+## Environment Configuration
 
-- **Platform:** Docker
-- **Platform Branch:** Docker running on 64bit Amazon Linux 2023
-- **Platform Version:** 4.12.1
+| Setting | Configuration |
+|---|---|
+| Application | `nginx-demo-app` |
+| Environment | `nginx-demo-env` |
+| Region | `us-east-1` |
+| Environment Tier | Web Server Environment |
+| Platform | Docker |
+| Platform Branch | Docker on 64-bit Amazon Linux 2023 |
+| Platform Version | 4.12.1 |
+| Environment Type | Single instance |
+| Instance Type | `t3.micro` |
+| Fleet Composition | On-Demand |
+| Processor | x86_64 |
+| Root Volume | gp3, 10 GB |
+| VPC | Default lab VPC |
+| Subnet | Single public subnet |
+| Public IP | Enabled |
+| Security Group | Default VPC security group |
+| Service Role | `aws-elasticbeanstalk-service-role` |
+| EC2 Instance Profile | `aws-elasticbeanstalk-ec2-role` |
+| EC2 Key Pair | Not configured |
+| Monitoring Interval | 5 minutes |
+| Health Reporting | Enhanced |
+| IMDSv1 | Disabled |
+| Deployment Policy | All at once |
+| Managed Platform Updates | Enabled |
+| Update Level | Minor and patch |
+| Proxy Server | nginx |
+| CloudWatch Log Streaming | Disabled |
+| X-Ray | Disabled |
+| Database | Not enabled |
 
-### Service Access
+## Implementation
 
-- **Service Role:** aws-elasticbeanstalk-service-role
-- **EC2 Instance Profile:** aws-elasticbeanstalk-ec2-role
-- **EC2 Key Pair:** Not configured for this lab
+The initial application package contained a static HTML file:
 
-### Networking
+```bash
+mkdir ~/beanstalk-v1
+cat > index.html <<EOF
+...
+EOF
 
-- **VPC:** Default lab VPC
-- **Public IP Address:** Enabled
-- **Instance Subnet:** Single public subnet selected
-- **Database:** Not enabled
-- **Tags:** None assigned
+zip -r ../beanstalk-v1.zip .
+ls -lh ~/beanstalk-v1.zip
+```
 
-### Instance and Scaling
+After validating the requirements of the selected Docker platform, a corrected Docker-based application package was created:
 
-- **Root Volume Type:** gp3
-- **Root Volume Size:** 10 GB
-- **Monitoring Interval:** 5 minutes
-- **IMDSv1:** Disabled
-- **EC2 Security Group:** Default VPC security group
-- **Environment Type:** Single instance
-- **Fleet Composition:** On-Demand
-- **Processor Type:** x86_64
-- **Instance Type:** t3.micro
-- **Secondary Type Listed During Config:** t3.small
-- **AMI:** Auto-selected by Elastic Beanstalk
+```bash
+mkdir ~/beanstalk-docker-v1
 
-### Monitoring and Updates
+cat > index.html <<EOF
+...
+EOF
 
-- **Health Reporting:** Enhanced
-- **CloudWatch Custom Metrics:** Not configured
-- **Log Streaming:** Disabled
-- **Managed Platform Updates:** Enabled
-- **Update Level:** Minor and patch
-- **Deployment Policy:** All at once
-- **Instance Replacement:** Disabled
-- **Proxy Server:** nginx
-- **X-Ray:** Disabled
+cat > Dockerfile <<EOF
+...
+EOF
 
+zip -r ../beanstalk-docker-v1.zip .
+ls -lh ~/beanstalk-docker-v1.zip
+```
 
-## 💻 Commands Used
+The corrected artifact was uploaded to Elastic Beanstalk and deployed to the existing environment.
 
-- `mkdir ~/beanstalk-v1` — created first local application folder
-- `cat > index.html <<EOF ... EOF` — created first static HTML file
-- `zip -r ../beanstalk-v1.zip .` — packaged first upload artifact
-- `mkdir ~/beanstalk-docker-v1` — created corrected Docker-based application folder
-- `cat > index.html <<EOF ... EOF` — created custom Beanstalk landing page
-- `cat > Dockerfile <<EOF ... EOF` — created Dockerfile for nginx container deployment
-- `zip -r ../beanstalk-docker-v1.zip .` — packaged Docker deployment artifact
-- `ls -lh ~/beanstalk-v1.zip` — validated first ZIP output
-- `ls -lh ~/beanstalk-docker-v1.zip` — validated corrected Docker ZIP output
+Elastic Beanstalk handled the supporting infrastructure required for the environment, including EC2 provisioning and integration with the configured service role and instance profile.
 
+## Troubleshooting
 
-## ✅ Validation
+### Problem
 
-- Elastic Beanstalk environment launched successfully
-- Environment health reached **Ok**
-- Public Elastic Beanstalk domain was generated
-- Docker platform on Amazon Linux 2023 deployed successfully
-- IAM service role created successfully
-- IAM EC2 instance profile created successfully
-- Environment events confirmed EC2 instance creation
-- Deployment history showed successful environment creation
-- Health dashboard displayed instance health as **Ok**
-- Live public page loaded successfully
-- Custom Docker-based Brian landing page displayed successfully
+The first deployment contained only a static `index.html` file while the Elastic Beanstalk environment was configured to use the Docker platform.
 
+The environment itself remained healthy, but the intended application version was not deployed.
 
-## 🧠 Lessons Learned
+### Investigation
 
-- Elastic Beanstalk automates much of the infrastructure required to host an application, but the deployment artifact still must match the chosen platform
-- A Docker-based Beanstalk environment requires a valid `Dockerfile` or `Dockerrun.aws.json`
-- A static HTML file alone is not sufficient when the environment expects a Docker workload
-- Failed deployments can still leave the environment healthy because Elastic Beanstalk rolls back to the last known good version
-- Event logs and CloudFormation status messages are critical for troubleshooting deployment failures
-- IAM role separation matters: the service role and EC2 instance profile serve different functions
-- Enhanced health reporting provides useful operational visibility even in simple labs
-- Managed services reduce manual work, but engineers still need to understand what is happening underneath
-- Cleanup discipline matters just as much as successful deployment
+Environment events, deployment history, and CloudFormation status messages were reviewed to determine why the application artifact had not been accepted.
 
+The health state alone was not sufficient evidence that the new application version had deployed because Elastic Beanstalk could return the environment to its last known-good state.
 
-## 🔮 Future Improvements
+### Root Cause
 
-- Deploy a second custom version to practice repeatable release management
-- Connect the environment to GitHub for CI/CD-based deployments
-- Enable CloudWatch log streaming for deeper observability
-- Add environment variables and application configuration settings
-- Test HTTPS / SSL behavior and custom domain mapping
-- Explore multi-instance and load-balanced environments
-- Compare Elastic Beanstalk directly to AWS EC2 manual hosting and Azure App Service
-- Deploy a real application instead of a lightweight landing page
+A Docker-based Elastic Beanstalk environment requires a valid container deployment definition such as:
 
+- `Dockerfile`
+- `Dockerrun.aws.json`
 
-## 🧹 Final Hygiene Cleanup
+A standalone static HTML file did not satisfy the deployment contract of the selected Docker platform.
 
-- Terminated Elastic Beanstalk environment after validation
-- Confirmed CloudFormation stack entered `DELETE_IN_PROGRESS`
-- Released public environment URL
-- Removed associated compute resources through environment termination
-- Maintained clean sandbox hygiene to avoid unnecessary AWS spend
+### Resolution
+
+A new deployment artifact was created containing:
+
+- Custom `index.html`
+- Valid `Dockerfile`
+
+The corrected application package was uploaded and redeployed.
+
+### Validation
+
+After redeployment:
+
+- Environment health returned to **Ok**
+- Deployment history showed successful deployment
+- Public environment URL remained reachable
+- Custom nginx-hosted landing page rendered successfully
+
+### Transferable Insight
+
+Managed platforms reduce infrastructure administration, but they do not remove platform-specific application requirements.
+
+Deployment artifacts must satisfy the contract of the selected runtime even when the underlying infrastructure is managed by the platform.
+
+## Validation
+
+The completed deployment was verified through multiple independent checks:
+
+- Elastic Beanstalk environment reached **Ok** health
+- Public Elastic Beanstalk domain was generated and reachable
+- Docker platform on Amazon Linux 2023 launched successfully
+- EC2 instance creation was confirmed through environment events
+- Service role and EC2 instance profile were successfully provisioned
+- Deployment history confirmed successful application deployment
+- Health dashboard reported the instance as **Ok**
+- Public application page loaded successfully
+- Custom Docker-based landing page displayed the expected content
+
+## Lessons Learned
+
+Elastic Beanstalk abstracts much of the infrastructure required to host an application, but successful deployment still depends on understanding the selected runtime and its packaging requirements.
+
+The build also reinforced several operational points:
+
+- Environment health and deployment success are not always the same signal.
+- Event history and CloudFormation status provide important evidence during failed deployments.
+- Service roles and EC2 instance profiles perform different responsibilities and should be understood independently.
+- Managed services reduce administrative effort without eliminating the need to understand the infrastructure and execution model underneath them.
+
+## Operational Considerations
+
+The environment was terminated after validation to prevent unnecessary AWS consumption.
+
+Cleanup included:
+
+- Terminating the Elastic Beanstalk environment
+- Confirming the CloudFormation stack entered `DELETE_IN_PROGRESS`
+- Releasing the public environment URL
+- Removing associated compute resources through environment termination
+
+No persistent production workload was retained after the lab.
+
+## Future Improvements
+
+Potential extensions to this build include:
+
+- Deploy a second application version to validate repeatable release management
+- Integrate GitHub-based CI/CD deployment
+- Enable CloudWatch log streaming
+- Add environment variables and application configuration
+- Configure HTTPS and custom domain mapping
+- Test multi-instance and load-balanced environments
+- Evaluate auto-scaling behavior
+- Compare Elastic Beanstalk with EC2-based application hosting and Azure App Service
+- Deploy a functional application workload beyond the lightweight nginx landing page
