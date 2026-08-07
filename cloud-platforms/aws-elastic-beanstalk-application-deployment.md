@@ -21,9 +21,7 @@ related: []
 
 Provisioned an AWS Elastic Beanstalk environment to evaluate managed application deployment, platform abstraction, IAM role separation, and application lifecycle behavior.
 
-A Docker-based nginx application was deployed to a single-instance web environment in **us-east-1**. The build also exposed an important platform requirement when an initial static HTML deployment failed because the selected Docker runtime required a valid container deployment artifact.
-
----
+A Docker-based nginx application was deployed to a single-instance web environment in `us-east-1`. The build also exposed an important platform requirement when an initial static HTML deployment failed because the selected Docker runtime required a valid container deployment artifact.
 
 ## Design Decisions
 
@@ -33,9 +31,7 @@ A Docker-based nginx application was deployed to a single-instance web environme
 - **Public subnet and public IP** — used to provide direct access to the application during validation.
 - **Enhanced health reporting** — enabled to provide operational visibility into environment and instance health.
 - **Managed platform updates** — enabled for minor and patch updates.
-- **CloudWatch log streaming and X-Ray** — intentionally deferred for future observability enhancements.
-
----
+- **CloudWatch log streaming and X-Ray** — deferred for future observability enhancements.
 
 <details>
 <summary><strong>Configuration Reference</strong></summary>
@@ -74,8 +70,6 @@ A Docker-based nginx application was deployed to a single-instance web environme
 
 </details>
 
----
-
 ## Implementation
 
 The initial deployment package contained only a static HTML file:
@@ -108,9 +102,7 @@ zip -r ../beanstalk-docker-v1.zip .
 ls -lh ~/beanstalk-docker-v1.zip
 ```
 
-The corrected artifact was uploaded and successfully deployed to the existing Elastic Beanstalk environment.
-
----
+The corrected artifact was uploaded and deployed to the existing Elastic Beanstalk environment.
 
 ## Troubleshooting
 
@@ -118,75 +110,48 @@ The corrected artifact was uploaded and successfully deployed to the existing El
 
 The initial deployment contained only a static `index.html` file while the Elastic Beanstalk environment was configured for the Docker platform.
 
-Although the environment health remained **Ok**, the intended application version was not deployed.
+Although environment health remained **Ok**, the intended application version was not deployed. Environment events, deployment history, and CloudFormation status messages were reviewed to determine why the artifact had not been accepted.
 
 ### Root Cause
 
-Environment events and CloudFormation status messages showed that the selected Docker runtime requires a valid container deployment artifact such as:
+The selected Docker runtime requires a valid container deployment definition such as:
 
 - `Dockerfile`
 - `Dockerrun.aws.json`
 
-A standalone HTML file does not satisfy the deployment contract for a Docker-based Elastic Beanstalk environment.
+A standalone HTML file did not satisfy the deployment contract for a Docker-based Elastic Beanstalk environment.
 
 ### Fix & Result
 
 A new deployment package containing a valid `Dockerfile` and custom application content was created and redeployed.
 
-The updated application deployed successfully and became the active application version.
-
----
+The corrected version deployed successfully and became the active application version.
 
 ## Validation
 
 Deployment success was confirmed through multiple independent checks:
 
 - Environment health reached **Ok**
-- Public Elastic Beanstalk URL remained reachable
+- Public Elastic Beanstalk URL was reachable
 - Docker platform deployed successfully
 - Environment events confirmed EC2 instance provisioning
 - Deployment history confirmed successful application deployment
 - IAM service role and EC2 instance profile provisioned correctly
-- Custom nginx landing page rendered successfully
-
----
+- Custom nginx landing page rendered the expected content
 
 ## Lessons Learned
 
-Managed platforms reduce infrastructure administration but do not eliminate platform-specific deployment requirements.
+Managed platforms reduce infrastructure administration but do not eliminate platform-specific deployment requirements — this build's troubleshooting incident demonstrated that directly.
 
-This build reinforced several operational principles:
-
-- Environment health alone is not sufficient evidence of deployment success.
-- Event history and CloudFormation status provide critical troubleshooting evidence.
 - Service roles and EC2 instance profiles perform different responsibilities and should be understood independently.
-- Successful platform abstractions still require understanding the deployment contract of the selected runtime.
 
----
+## Operational Notes & Roadmap
 
-## Operational Considerations
+**Cleanup:** The environment was terminated after validation to prevent unnecessary AWS consumption. The CloudFormation stack entered `DELETE_IN_PROGRESS`, associated compute resources were removed, and no persistent workload was retained.
 
-The environment was terminated after validation to prevent unnecessary AWS consumption.
+**Potential extensions:**
 
-Cleanup included:
-
-- Terminating the Elastic Beanstalk environment
-- Confirming the CloudFormation stack entered `DELETE_IN_PROGRESS`
-- Releasing the public application endpoint
-- Removing associated compute resources
-
-No persistent workload was retained after the lab.
-
----
-
-## Future Improvements
-
-Future iterations may include:
-
-- GitHub Actions CI/CD deployment
+- GitHub-based CI/CD deployment
 - CloudWatch log streaming
 - HTTPS and custom domain configuration
-- Multi-instance and load-balanced environments
-- Auto Scaling validation
-- Comparison with EC2-hosted deployments and Azure App Service
-- Deployment of a production-style application workload
+- Multi-instance load balancing and Auto Scaling validation
