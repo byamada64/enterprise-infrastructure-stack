@@ -201,7 +201,7 @@ Settings:
 - Key Vault: Disabled (not required for lab)
 
 
-### ⏱ Deployment Notes
+### Deployment Notes
 
 - Deployment time: ~30–45 minutes
 - Initial failures due to policy restrictions
