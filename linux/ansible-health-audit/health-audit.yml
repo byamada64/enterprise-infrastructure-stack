@@ -1,0 +1,37 @@
+---
+- name: Linux Health Audit
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Show kernel version
+      command: uname -r
+      register: kernel_version
+      changed_when: false
+
+    - name: Show disk utilization
+      command: df -h
+      register: disk_usage
+      changed_when: false
+
+    - name: Show top CPU processes
+      shell: ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head -10
+      register: top_cpu
+      changed_when: false
+
+    - name: Show top memory processes
+      shell: ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -10
+      register: top_mem
+      changed_when: false
+
+    - name: Display health audit summary
+      debug:
+        msg:
+          - "Host: {{ inventory_hostname }}"
+          - "Kernel: {{ kernel_version.stdout }}"
+          - "Disk Usage:"
+          - "{{ disk_usage.stdout_lines }}"
+          - "Top CPU Processes:"
+          - "{{ top_cpu.stdout_lines }}"
+          - "Top Memory Processes:"
+          - "{{ top_mem.stdout_lines }}"

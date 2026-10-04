@@ -1,0 +1,44 @@
+---
+- name: Baseline Linux Server Configuration
+  hosts: webservers
+  become: yes
+
+  tasks:
+
+    - name: Ensure opsadmin user exists
+      user:
+        name: opsadmin
+        state: present
+        shell: /bin/bash
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Ensure nginx is running and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Deploy managed MOTD banner
+      copy:
+        dest: /etc/motd
+        content: |
+          Authorized Access Only
+          Managed by Ansible
+          Host: {{ inventory_hostname }}
+
+    - name: Validate nginx status
+      command: systemctl is-active nginx
+      register: nginx_status
+      changed_when: false
+
+    - name: Show nginx result
+      debug:
+        msg: "NGINX on {{ inventory_hostname }} is {{ nginx_status.stdout }}"
