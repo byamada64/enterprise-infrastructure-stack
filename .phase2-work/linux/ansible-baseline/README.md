@@ -1,0 +1,78 @@
+# Ansible Linux Baseline Configuration
+
+> **Context:** Training sandbox
+
+## Build Summary
+
+Created an Ansible Linux baseline workflow to evaluate repeatable server configuration, package validation, and baseline readiness in a production-aligned scenario.
+
+This build focuses on configuration consistency versus manual setup, incorporating Ansible playbooks, SSH access, package management, service validation, and OS-level baseline checks within a governed lab environment.
+
+## Environment Build Choices
+
+- Platform: KodeKloud Ansible Sandbox Lab
+- Ansible Version: 2.18.x
+- Control Node: ansible-controller
+- Managed Nodes: web1, web2
+- Operating System: Ubuntu Linux
+- Services Configured: User Management, MOTD Banner, NGINX
+- Purpose: Standardize new Linux servers with a repeatable baseline configuration
+
+## YAML File Used
+
+### baseline.yml
+
+See [`baseline.yml`](baseline.yml)
+
+## Commands Used
+
+- `mkdir -p ~/ansible-lab`
+- `cd ~/ansible-lab`
+- `vi baseline.yml`
+- `ansible-playbook -i hosts baseline.yml`
+- `ansible webservers -i hosts -m shell -a "cat /etc/motd"`
+- `ansible-playbook -i hosts baseline.yml`
+
+## Validation
+
+- Created `opsadmin` user on both managed nodes
+- Updated apt package cache successfully
+- Verified NGINX package installed on:
+  - web1
+  - web2
+- Confirmed NGINX service is started and enabled
+- Deployed managed `/etc/motd` banner to both servers
+- Verified hostname variable rendered dynamically:
+  - web1
+  - web2
+- Confirmed service validation returned `active`
+- Re-ran playbook and confirmed idempotency with `changed=0`
+
+## Lessons Learned
+
+- Baseline playbooks reduce manual server setup time
+- User creation can be standardized across all hosts
+- MOTD banners help identify managed systems quickly
+- Service validation improves deployment confidence
+- Dynamic variables allow host-specific messaging
+- Idempotent playbooks are ideal for recurring compliance checks
+- Ansible can combine account management, packages, services, and files in one workflow
+
+## Future Improvements
+
+- Add SSH hardening configuration
+- Add sudo access for `opsadmin`
+- Install common admin tools (`curl`, `vim`, `net-tools`)
+- Add firewall baseline rules
+- Enforce password rotation policies
+- Convert baseline tasks into reusable Ansible roles
+- Integrate with CI/CD for new server onboarding
+
+## Final Hygiene Cleanup
+
+- Remove temporary lab users if environment resets
+- Revert MOTD banner if required
+- Remove unused packages after testing
+- Sanitize inventory files before GitHub commits
+- Do not commit plaintext credentials
+- End temporary KodeKloud sandbox when finished
